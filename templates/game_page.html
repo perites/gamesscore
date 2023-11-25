@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>score games</title>
+</head>
+<body>
+
+<h1>Name : {{ game._id}} </h1>
+<h2>year: {{game.year}}</h2>
+<img src={{game.image}}>
+
+
+{%if current_user.is_authenticated and current_user.get_field("games").get(game._id)%}
+
+<form action="/change/game/{{game._id}}" >
+<button>Change game</button>
+</form>
+{%else%}
+
+<br>
+<form action="/change/game/{{game._id}}" >
+<button >Add game</button>
+</form>
+{%endif%}
+
+</body>
+</html>

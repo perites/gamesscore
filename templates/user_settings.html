@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>score games</title>
+</head>
+<body>
+
+
+<style>
+    ul {
+        list-style-type: none;
+    }
+</style>
+
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="user" content="{{ current_user.user_id }}">
+<h1>Name : {{ current_user.user_id}} </h1>
+<h1> Criterias: </h1>
+{% for criteria in criterias%}
+    {% if criteria == need_to_edit %}
+
+        <form action= "/settings" method= "POST">
+        <h3>Criteria name: <input name="criteria_name" value="{{criteria}}" /></h3>
+        <ul data-list-id="{{criteria}}" class="sortable-list">
+                {% for value in criterias[criteria]%}
+                    <li data-id={{value}}> <h4> <input name="{{value}}__name"value="{{value}}"/ > delete: <input type="checkbox" name="{{value}}__checkbox" value="{{value}}"/></h4> </li>
+                {% endfor %}
+        </ul>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="working_criteria_name_commit" value="{{ criteria }}"/>
+        <button>Commit</button>
+        </form>
+
+
+            <form action= "/settings" method= "POST">
+                <h4><input name="new_value"/> </h4>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="add_value" value="{{ criteria }}"/>
+                <button>Add value</button>
+            </form>
+
+        
+        <br>
+        <form action= "/settings" method= "POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="delete_criteria" value="{{ criteria }}"/>
+            <button>Delete Criteria</button>
+        </form>
+
+    {% else %}
+        <h3> {{criteria}} </h3>
+        <form action= "/settings" method= "POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="working_criteria_name_start_edit" value="{{ criteria }}"/>
+            <button>Edit</button>
+        </form>
+    {%endif%}
+
+{% endfor %}
+
+
+
+
+        <form action= "/settings" method= "POST">
+        <h4><input name="new_criteria_name"/> </h4>
+            
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="add_criteria" value="True" />
+                <button>Add Criteria</button>
+        </form>
+
+
+<dir>
+    <h3>Update criterias order : </h3>
+<ul data-list-id="criterias" class="sortable-list">
+{%for criteria in current_user.get_field("all_criterias") %}
+    <li data-id="{{criteria}}" >{{criteria}}</li>
+{%endfor%}
+</ul>
+
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+<input type="hidden" name="update_criterias_order" />
+<button id=sendButton>Update criterias order</button>
+
+</dir>
+
+
+
+
+{% from 'bootstrap5/form.html' import render_form %}
+{{render_form(steam_form)}}
+
+
+<form method= "POST">
+<h3>Update basic criterias</h3>
+
+<ul data-list-id="basic_criterias" class="sortable-list">
+    {% for bc in user_show_info %}
+        
+        <li data-id="{{bc}}"><h4> <input type="checkbox" name="__checkbox{{bc}}" value="{{bc}}" checked/>{{bc}}</h4></li>
+    {%endfor%}
+    {%for bc in rest_criterias%}   
+        <li data-id="{{bc}}"><h4> <input type="checkbox" name="__checkbox{{bc}}" value="{{bc}}"/>{{bc}}</h4></li>
+    {%endfor%}
+</ul>
+
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+<input type="hidden" name="update_basic_criterias" value="True" />
+<button id=sendButton>Update basic criterias</button>
+
+
+</form>
+
+<br>
+<form action="/profile/{{current_user.user_id}}/" >
+<button >Back to account</button>
+</form>
+
+</body>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const user = document.querySelector('meta[name="user"]').content;
+    
+    document.querySelectorAll('.sortable-list').forEach(function (sortableList) {
+        new Sortable(sortableList, {
+            animation: 150,
+            onEnd: function(evt) {
+                console.log('New order:', evt.oldIndex, 'to', evt.newIndex);
+            }
+        });
+    });
+
+    document.getElementById('sendButton').addEventListener('click', function() {
+        // const listId = sortableList.dataset.listId;
+        const itemOrder = Array.from(document.querySelector('.sortable-list').children).map((li, index) => {
+            return {
+                id: li.dataset.id,
+                order: index,
+                listId: "criterias",
+                user: user 
+            };
+        });
+
+        // console.log(itemOrder);
+
+        // Fetch API to send itemOrder to the server
+        
+        fetch("/update-criterias", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken, 
+            },
+            body: JSON.stringify({ itemOrder }),
+        })
+    })
+
+
+</script>
