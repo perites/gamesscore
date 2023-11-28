@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import StringField, SubmitField, PasswordField, SelectField, FieldList, FormField, Label, EmailField, DateField, IntegerField
-from wtforms.validators import InputRequired, Length, Email, NumberRange, ValidationError
+from wtforms import StringField, SubmitField, PasswordField, SelectField, FieldList, FormField, Label, EmailField, DateField, IntegerField, TextAreaField
+from wtforms.validators import InputRequired, Length, Email, NumberRange, ValidationError, Optional
 # from email_validator import
 import confg
 from datetime import datetime
@@ -30,20 +30,21 @@ class AddGameFieldForm(FlaskForm):
     submit = SubmitField('Add Field')
 
 
-# class ChangeCriteriasForm(FlaskForm):
-#     NotImplemented
-
-
 class GameInfoForm(FlaskForm):
     status = SelectField("Status", choices=confg.statuses)
     started_playing = DateField("Started playing")
     hours_played = IntegerField("Hours played")
+    tags = TextAreaField("Tags")
 
 
 class SteamAccountForm(FlaskForm):
-    steam_link = StringField("Steam link")
+    steam_link = StringField("Steam link", validators=[Optional(), InputRequired()])
     submit = SubmitField("add steam")
 
+
+class AddCollection (FlaskForm):
+    new_collection_name = StringField("New collection name", validators=[Optional(), InputRequired()])
+    submit = SubmitField("New collection")
 
 # class AllGameInfoForm(CriteriasForm):
 # status = SelectField("Status", choices=confg.statuses)

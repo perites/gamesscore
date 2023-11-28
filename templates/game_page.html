@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>score games</title>
+	<title>Score game</title>
 </head>
 <body>
 
-<h1>Name : {{ game._id}} </h1>
+<h1>Name : {{ game.display_name}} </h1>
 <h2>year: {{game.year}}</h2>
 <img src={{game.image}}>
 
 
-{%if current_user.is_authenticated and current_user.get_field("games").get(game._id)%}
+{%if have_game %}
 
 <form action="/change/game/{{game._id}}" >
 <button>Change game</button>
 </form>
+
+	{% if favorite  %}
+	<form action="/game/{{game._id}}" method="POST">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+	    <input type="hidden" name="remove_from_favorites" value="{{ game._id }}"/>
+		<button> remove from favorites </button>
+	</form>
+	{% else %}
+	<form action="/game/{{game._id}}" method="POST">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+	    <input type="hidden" name="add_to_favorites" value="{{ game._id }}"/>
+		<button> Add to favorites </button>
+	</form>
+	{% endif %}
+
 {%else%}
 
 <br>

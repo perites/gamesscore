@@ -30,20 +30,27 @@ class UsersHelper(DbHelper):
         self.users_collection.update_one({"_id": _id}, {"$set": new_field})
 
     def find_user_by_id(self, _id):
-        return self.users_collection.find_one({"_id": _id})
+        return self.users_collection.find_one({"_id": _id}, {"password": 1})
 
-        # user = {"_id" : 1,"name" : "perite", }
+    def get_request(self, request):
+        return self.users_collection.aggregate(request)
 
 
 class GamesHelper(DbHelper):
     def find_game_by_id(self, game_id):
         return self.games_collection.find_one({"_id": game_id})
 
+    def get_request(self, games_id_list, request):
+        return self.games_collection.find({"_id": {"$in": games_id_list}}, request)
+
     def get_game_image(self, game_id):
         return self.find_game_by_id(game_id)["image"]
 
     def add_game(self, new_game_name):
         self.games_collection.insert_one({"_id": new_game_name})
+
+    def get_games_ids_and_names(self):
+        return list(self.games_collection.find({}, {"_id": 1, "display_name": 1}))
 
     def add_field_to_game(self, _id, new_field_name, new_field_value):
         self.games_collection.update_one({"_id": _id}, {"$set": {new_field_name: new_field_value}})

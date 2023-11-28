@@ -1,29 +1,10 @@
-<!--  <!DOCTYPE html>
-<html>
-<head>
-	<title>score games</title>
-</head>
-<body>
-{{game_id}}
-
-
-
-
-<h2>Criterias:</h2>
-
-
-
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Score Games</title>
+    <title>Score Game</title>
     <style>
         body {
             background-color: #2c3e50; /* Dark background color for dark mode */
@@ -103,9 +84,10 @@
 {% from 'bootstrap5/form.html' import render_form %}
 	 
 <dir>
-	<h2> <a href="/game/{{game_id}}">{{game_id}}</a> </h2>
+	<h2> <a href="/game/{{info['game']['game_id']}}" target=”_blank”>{{info['game']["additional_info"]['name']}} </a></h2>
+</dir>
+{{ render_form(form, action=url_for('change_user_game_page_post', game_id=info['game']['game_id'],all_criterias=info['all_criterias'].keys())) }}
 
-{{render_form(form)}}
 
 <form method= "POST">
 	

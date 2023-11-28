@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
 	<title>score games</title>
@@ -12,4 +12,87 @@
 
 
 </body>
-</html>
+</html> -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #Tags {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="editTags()">Edit</button>
+    <textarea cols="12" rows="4" id="Tags" name="Tags"></textarea>
+
+    <script>
+        function editTags() {
+            var textarea = document.getElementById('Tags');
+            textarea.style.display = 'block';
+
+            // Add a click event listener to the document to detect clicks outside the textarea
+            document.addEventListener('click', function clickOutside(event) {
+            	var textarea = document.getElementById('Tags');
+                if (!textarea.contains(event.target)) {
+                    // Click outside the textarea, hide the textarea and remove the event listener
+                    textarea.style.display = 'none';
+                    console.log(textarea.value);
+                    document.removeEventListener('click', clickOutside);
+                }
+            });
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #Tags {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <button onclick="editTags(event)">Edit</button>
+    <textarea cols="12" rows="4" id="Tags" name="Tags" value="test"></textarea>
+
+    <script>
+        function editTags(event) {
+            event.stopPropagation(); // Prevent click event from propagating to the document
+            var textarea = document.getElementById('Tags');
+            textarea.style.display = 'block';
+
+            // Add a click event listener to the document to detect clicks outside the textarea
+            function clickOutside(event) {
+                if (!textarea.contains(event.target)) {
+                    // Click outside the textarea, hide the textarea and remove the event listener
+                    textarea.style.display = 'none';
+                    console.log(textarea.value);
+                    document.removeEventListener('click', clickOutside);
+                }
+            }
+
+            document.addEventListener('click', clickOutside);
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+
+<input id="new_value_name"/>
+        <button type="button" onclick="addCriteria()">Add value</button>
+
+<script>
+    function addCriteria() {
+        console.log(document.getElementById("new_criteria_name").value);
+    }
+</script>

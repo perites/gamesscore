@@ -1,39 +1,4 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-	<title>score games</title>
-</head> 
-<body>
 
-<h1>Name : {{ user_id.user_id}} </h1>
-<h5>account created : {{ user_id.account_created()}} </h5>
-{% if user_id.get_field("steam_link") %}
-<h3> {{user_id.get_field("steam_link")}}</h3>
-{%endif%}
-<h2>Games on record: {{user_id.all_games_amount()}}</h2>
-
-<h2>Criterias: </h2>
-
-{% for criteria, values in user_id.get_field("all_criterias").items() %}
-<h3>{{criteria}}</h3>
-<ul>
-    {%for value in values%}
-    <li>{{value}}</li>
-    {%endfor%}
-</ul>
-{%endfor%}
-<br>
-<form action="/profile/{{user_id.user_id}}/list" >
-<button >User list</button>
-</form>
-
-<br>
-<form action="/profile/settings" >
-<button >Settings</button>
-</form>
-
-</body>
-</html> -->
 
 
 
@@ -46,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Score Games</title>
+    <title>Score Game</title>
     <style>
         body {
             background-color: #2c3e50; /* Dark background color for dark mode */
@@ -56,21 +21,8 @@
             margin: 0;
         }
 
-        h1, h2, h3, h4, h5 {
-            margin-top: 0;
-        }
-
-        h1 {
-            font-size: 32px;
-        }
-
-        h2 {
-            font-size: 24px;
-        }
-
-        h3 {
-            font-size: 20px;
-        }
+       
+        
 
         ul {
             list-style-type: none;
@@ -98,16 +50,25 @@
 </head> 
 <body>
 
-    <h1>Name: {{ user_id.user_id }}</h1>
-    <h5>Account created: {{ user_id.account_created() }}</h5>
-    {% if user_id.get_field("steam_link") %}
-        <h3>{{ user_id.get_field("steam_link") }}</h3>
+    <h1>Name: {{ info["_id"] }}</h1>
+    <h5>Account created: {{ info["account_created"]}}</h5>
+    {% if info["steam_link"] %}
+        <h3>{{ info["steam_link"] }}</h3>
     {% endif %}
-    <h2>Games on record: {{ user_id.all_games_amount() }}</h2>
+    <h2>Games on record: {{ info["games_amount"] }}</h2>
 
+    <h2>Favorites:</h2>
+    <h3> Games</h3>
+    <ul>
+        {% for game_dic in info["favorites"]["games"] %}
+            <li>{{ game_dic["display_name"]}}</li>
+        {% endfor %}
+    </ul>
     <h2>Criterias:</h2>
 
-    {% for criteria, values in user_id.get_field("all_criterias").items() %}
+
+
+    {% for criteria, values in info["all_criterias"].items() %}
         <h3>{{ criteria }}</h3>
         <ul>
             {% for value in values %}
@@ -116,8 +77,12 @@
         </ul>
     {% endfor %}
 
-    <form action="/profile/{{ user_id.user_id }}/list">
+    <form action="/profile/{{ info['_id'] }}/list">
         <button>User list</button>
+    </form>
+
+    <form action="/profile/{{ info['_id'] }}/collections">
+        <button>User collections</button>
     </form>
 
     <form action="/settings">
@@ -126,3 +91,5 @@
 
 </body>
 </html>
+
+

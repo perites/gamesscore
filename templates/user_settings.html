@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>score games</title>
+    <title>Score game</title>
 </head>
 <body>
 
@@ -10,6 +10,17 @@
     ul {
         list-style-type: none;
     }
+
+    .popup {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+    
 </style>
 
 
@@ -20,26 +31,27 @@
 {% for criteria in criterias%}
     {% if criteria == need_to_edit %}
 
-        <form action= "/settings" method= "POST">
-        <h3>Criteria name: <input name="criteria_name" value="{{criteria}}" /></h3>
+        <form id="myForm" action= "/settings" method= "POST">
+        <h3>Criteria name: <input id="inputField" name="criteria_name" value="{{criteria}}" /></h3>
+        <div id="popup" class="popup">Please fill out the input field.</div>
         <ul data-list-id="{{criteria}}" class="sortable-list">
                 {% for value in criterias[criteria]%}
-                    <li data-id={{value}}> <h4> <input name="{{value}}__name"value="{{value}}"/ > delete: <input type="checkbox" name="{{value}}__checkbox" value="{{value}}"/></h4> </li>
+                    <li data-id={{value}}> <h4> <input id="inputField" name="{{value}}__name"value="{{value}}"/ > delete: <input type="checkbox" name="{{value}}__checkbox" value="{{value}}"/></h4> </li>
                 {% endfor %}
         </ul>
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input type="hidden" name="working_criteria_name_commit" value="{{ criteria }}"/>
-        <button>Commit</button>
+        <button type="button" onclick="validateForm()">Commit</button>
         </form>
 
 
-            <form action= "/settings" method= "POST">
-                <h4><input name="new_value"/> </h4>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <input type="hidden" name="add_value" value="{{ criteria }}"/>
-                <button>Add value</button>
-            </form>
-
+        <form  id="myForm2" action= "/settings" method= "POST">
+            <h4><input id="inputField2" name="new_value"/> </h4>
+            <div id="popup2" class="popup">Please fill out the input field.</div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="add_value" value="{{criteria}}" />
+            <button type="button" onclick="validateForm('popup2', 'inputField2', 'myForm2')">Add value</button>
+        </form> 
         
         <br>
         <form action= "/settings" method= "POST">
@@ -62,12 +74,13 @@
 
 
 
-        <form action= "/settings" method= "POST">
-        <h4><input name="new_criteria_name"/> </h4>
+        <form id="myForm" action= "/settings" method= "POST">
+        <h4><input id="inputField" name="new_criteria_name"/> </h4>
+        <div id="popup" class="popup">Please fill out the input field.</div>
             
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="add_criteria" value="True" />
-                <button>Add Criteria</button>
+                <button type="button" onclick="validateForm()">Add Criteria</button>
         </form>
 
 
@@ -81,7 +94,7 @@
 
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 <input type="hidden" name="update_criterias_order" />
-<button id=sendButton>Update criterias order</button>
+<button id=sendButton onClick="window.location.reload();">Update criterias order</button>
 
 </dir>
 
@@ -150,7 +163,7 @@
 
         // Fetch API to send itemOrder to the server
         
-        fetch("/update-criterias", {
+        fetch("/setting-update-criterias", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -161,4 +174,33 @@
     })
 
 
+
+
+    function validateForm(popupId="popup", inputFieldId="inputField", myForm="myForm") {
+        var inputField = document.getElementById(inputFieldId).value;
+        var popup = document.getElementById(popupId);
+
+        if (inputField.trim() === "") {
+            popup.style.display = "block";
+
+            document.getElementById(inputFieldId).focus();
+            setTimeout(function () {
+                popup.style.display = "none";
+            }, 2000);
+        } else {
+            popup.style.display = "none";
+            document.getElementById(myForm).submit();
+        }
+    }
+
+
 </script>
+
+
+
+
+
+
+
+
+            

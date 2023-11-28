@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<head>
+
+    <style>
+        .popup {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 5px;
+    }
+
+
+    #addGame{
+            display: none;
+        }
+    
+
+</style>
+</head>
+<body>
+    {{ collection["name"] }}
+    {% for game_id in collection["content"] %}
+    <br>
+    <a href="/game/{{game_id}}"> {{user_id.find_game(game_id)["display_name"]}} </a>
+     <h3> {{collection[game_id]}} </h3>   
+    {% endfor %}
+
+
+
+
+    {% if current_user.is_authenticated and current_user.user_id == user_id.user_id %}
+
+
+    <button onclick="addGame()"><h2>+</h2></button>
+    <div id="addGame" class="search-container">
+        <input type="text" id="searchInput" placeholder="Find the game..." />
+        <ul id="searchResults"></ul>
+    </div>
+
+
+
+
+
+
+
+    <form method="POST" >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="action" value="Delete" />
+        <button>Delete Collection</button>
+    </form>
+
+    <form id="ChangeNameForm" method="POST" >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="action" value="ChangeName" />
+        <input id="inputField" name="new_collection_name"/>
+        <div id="popup" class="popup"></div>
+        <button type="button" onclick="validateForm()">Change Name</button>
+    </form>
+
+    {% endif %}
+
+</body>
+</html>
+
+
+<meta name="user-collections" content="{{ user_id.get_all_collections() }}">
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="user" content="{{ current_user.user_id }}">
+<meta name="collection" content="{{ collection['name'] }}">
+
+
+<script>
+    
+    function validateForm(popupId="popup", inputFieldId="inputField", myForm="ChangeNameForm") {
+
+
+
+        var inputField = document.getElementById(inputFieldId).value;
+        var popup = document.getElementById(popupId);
+        
+        const user_collections_str = document.querySelector('meta[name="user-collections"]').content;
+        const user_collections =  JSON.parse(user_collections_str)
+
+        
+        
+
+        if (inputField.trim() === "") {
+            popup.innerText  = "Please fill out the input field."
+            popup.style.display = "block";
+
+
+
+            document.getElementById(inputFieldId).focus();
+            setTimeout(function () {
+                popup.style.display = "none";
+            }, 2000);
+        }   
+
+        
+        else if (inputField.trim() in user_collections){
+
+            popup.innerText  = "Collection with this name already exists"
+            popup.style.display = "block";
+
+            document.getElementById(inputFieldId).focus();
+            setTimeout(function () {
+                popup.style.display = "none";
+            }, 2000); }
+
+
+
+        else {
+            popup.style.display = "none";
+            document.getElementById(myForm).submit();
+        }
+        
+    }
+
+    function addGame() {
+            event.stopPropagation(); // Prevent click event from propagating to the document
+            var searchField = document.getElementById('addGame');
+            searchField.style.display = 'block';
+
+            // Add a click event listener to the document to detect clicks outside the textarea
+            // function clickOutside(event) {
+            //     if (!textarea.contains(event.target)) {
+            //         // Click outside the textarea, hide the textarea and remove the event listener
+            //         textarea.style.display = 'none';
+            //         console.log(textarea.value);
+            //         document.removeEventListener('click', clickOutside);
+            //     }
+            // }
+
+            // document.addEventListener('click', clickOutside);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+
+
+  fetch('/api/all-games')
+  .then(response => response.json())
+  .then(data => {
+    console.log(Object.keys(data))
+    searchInput.addEventListener('input', function () {
+const searchTerm = searchInput.value.toLowerCase();
+    
+    if (searchTerm.trim() === '') {
+      searchResults.innerHTML = '';
+      searchResults.style.display = 'none'; 
+      return;}
+
+    
+    const filteredResults = Object.keys(data).filter(item => item.toLowerCase().includes(searchTerm));
+    
+    searchResults.innerHTML = '';
+
+    for (let i = 0; i < Math.min(filteredResults.length, 5); i++) {
+      const result = filteredResults[i];
+      const li = document.createElement('li');
+      const label = document.createElement('label'); 
+      
+      label.textContent = result;
+      li.appendChild(label); 
+      li.addEventListener('click', function () {
+            // Handle click on a result (you can customize this part)
+            // alert(`You clicked on: ${label.textContent}`);
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+            const user = document.querySelector('meta[name="user"]').content;
+            const collection = document.querySelector('meta[name="collection"]').content;
+            const SendedInfo = {"user" : user, "add_game" : label.textContent, "collection" :  collection}
+
+            fetch("/user-update-collection", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken, 
+            },
+            body: JSON.stringify({ SendedInfo }),
+                })
+            var searchField = document.getElementById('addGame');
+            searchField.style.display = 'none';
+          });
+
+    
+      searchResults.appendChild(li);
+    }
+
+    searchResults.style.display = filteredResults.length ? 'block' : 'none'; // Show or hide the results list
+  });
+  })
+});
+
+</script>
