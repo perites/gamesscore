@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
+    <title>Edit collection {{ collection["collection_name"] }}</title>
+
+    <style>
+        ul {
+            list-style-type: none;
+        }
+
+        .popup {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        {##searchResults {#}
+        {#    list-style: none;#}
+        {#    padding: 0;#}
+        {#    margin: 0;#}
+        {#    position: absolute;#}
+        {#    top: 100%;#}
+        {#    left: 50%;#}
+        {#    transform: translateX(-50%);#}
+        {#    width: 400px;#}
+        {#    background-color: #fff;#}
+        {#    border: 3px solid #ddd;#}
+        {#    border-radius: 8px;#}
+        {#    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);#}
+        {#    display: none;#}
+        {#    z-index: 1; /* Ensure search results appear on top */#}
+        {# }#}
+        {##}
+        {##searchResults li {#}
+        {#    font-size: 20px;#}
+        {#    padding: 12px;#}
+        {#    cursor: pointer;#}
+        {#    color: #333; /* Darken the text color for better visibility */#}
+        {#    border-bottom: 2px solid #ddd;#}
+        {# }#}
+        {##}
+        {##searchResults li:last-child {#}
+        {#    border-bottom: none; /* Remove border from the last search result */#}
+        {# }#}
+        {##}
+        {##searchResults li:hover {#}
+        {#    background-color: #f9f9f9;#}
+        {# }#}
+        {##}
+    </style>
+
+</head>
+<body>
+
+{#<form method="POST">#}
+{#    <h2>Cange collection name : {{ collection["collection_name"] }}</h2>#}
+{#</form>#}
+{##}
+{#<h2>Collection name : {{ collection["collection_name"] }}</h2>#}
+{#<h3>Note : {{ collection["collection_note"] }} </h3>#}
+{#<br>#}
+{#{% for game in collection["games"] %}#}
+{#    <h3>Game name : {{ game["info"][0] }}</h3>#}
+{#    <h3>Note : {{ game["note"] }}</h3>#}
+{#    <br>#}
+{#{% endfor %}#}
+{##}
+{#<form action="/collections/{{ collection["collection_name"] }}/edit">#}
+{#    <button>Edit</button>#}
+{#</form>#}
+
+
+<form method="POST" id="ChangeCollectionForm">
+    <h2>Collection name: <input name="new_collection_name" value="{{ collection["collection_name"] }}"/></h2>
+
+    <h2>Collection note: </h2>
+    <textarea name="collection_note">{{ collection["collection_note"] }}</textarea>
+
+
+    <ul class="sortable-list" id="gamesList">
+        {% for game in collection["games"] %}
+            <li>
+                <h3>{{ game["info"][0] }}</h3>
+                <h4><input name="__note{{ game["game_id"] }}" value="{{ game["note"] }}"/>
+                    delete:
+                    <input type="checkbox" name="__checkbox{{ game["game_id"] }}"/>
+                </h4>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+    {#    <input id="new_game" name="new_game"/>#}
+    {#    <button type="button" onclick="addValue('{{ criteria }}')">Add value</button>#}
+
+    <br>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="action" value="change_collection"/>
+    <div id="popup" class="popup">Please fill out the input field.</div>
+    <button type="button"
+            onclick="validateForm('popup','ChangeCollectionForm', 'addGameInput')">
+        Commit
+    </button>
+
+
+    <button onclick="showAddGameInput()" type="button">Add Game</button>
+
+    <div id="addGameInputContainer" style="display: none;">
+        <input type="text" id="searchInput" placeholder="Find the game..." name="addGameInput"/>
+        <ul id="searchResults"></ul>
+    </div>
+
+
+</form>
+
+<br>
+<form method="POST">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="action" value="delete_collection"/>
+    <button> Delete Collection</button>
+
+</form>
+
+
+</body>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+    function showAddGameInput() {
+        const addGameInputContainer = document.getElementById('addGameInputContainer');
+        addGameInputContainer.style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const addGameInputContainer = document.getElementById('addGameInputContainer');
+
+        fetch('/api/all-games')
+            .then(response => response.json())
+            .then(data_raw => {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = searchInput.value.toLowerCase();
+
+                    if (searchTerm.trim() === '') {
+                        searchResults.innerHTML = '';
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+
+                    const data = data_raw.reduce((acc, game) => {
+                        acc[game.display_name] = game._id;
+                        return acc;
+                    }, {});
+
+                    {#console.log(data)#}
+
+                    const filteredResults = Object.keys(data).filter(item => item.toLowerCase().includes(searchTerm));
+                    searchResults.innerHTML = '';
+
+                    for (let i = 0; i < Math.min(filteredResults.length, 5); i++) {
+                        const result = filteredResults[i];
+                        const li = document.createElement('li');
+                        const text = document.createElement('h3');
+
+                        text.textContent = result;
+                        {#link.href = `/game/${data[result]}`;#}
+                        li.appendChild(text);
+                        searchResults.appendChild(li);
+                    }
+
+                    searchResults.style.display = filteredResults.length ? 'block' : 'none';
+
+                    searchResults.querySelectorAll('li').forEach(li => {
+                        li.addEventListener('click', function () {
+                            // Get the selected game name from the clicked list item
+                            const selectedGameName = li.textContent;
+                            {#console.log(data, typeof data)#}
+                            {#console.log(selectedGameName, data[selectedGameName])#}
+                            // Call the addValue function with the selected game name
+                            addValue(selectedGameName, data[selectedGameName]);
+
+                            // Clear the search input and hide the search results
+                            searchInput.value = '';
+                            searchResults.style.display = 'none';
+                        });
+
+
+                    })
+
+
+                })
+            })
+    })
+
+
+    function addValue(game_name, game_id) {
+        var newListElement = document.createElement("li");
+        var newListContent = `
+        <h3> ${game_name} </h3>
+        <h4><input name="__note${game_id}" value=""/>
+                    delete:
+                    <input type="checkbox" name="__checkbox${game_id}"/>
+                </h4>
+    `;
+        console.log(newListContent)
+        newListElement.innerHTML = newListContent;
+        document.getElementById(`gamesList`).appendChild(newListElement);
+        document.getElementById(`searchInput`).value = "";
+        document.getElementById('addGameInputContainer').style.display = 'none';
+    }
+
+
+    document.querySelectorAll('.sortable-list').forEach(function (sortableList) {
+        new Sortable(sortableList, {
+            animation: 150,
+            onEnd: function (evt) {
+                console.log('New order:', evt.oldIndex, 'to', evt.newIndex);
+            }
+        })
+    })
+
+
+    function validateForm(popupId, myForm, name_to_ignore) {
+        var popup = document.getElementById(popupId);
+        var form = document.getElementById(myForm);
+
+        var inputFields = form.querySelectorAll('input');
+        hasEmptyField = false;
+        inputFields.forEach(function (input) {
+            if (input.value.toString().trim() === "" && input.name != name_to_ignore && input.name != '__checkbox') {
+                hasEmptyField = true;
+                input.focus()
+            }
+        });
+        if (hasEmptyField) {
+            popup.style.display = "block";
+            setTimeout(function () {
+                popup.style.display = "none";
+            }, 2000);
+        } else {
+            document.getElementById(myForm).submit();
+        }
+    }
+
+</script>

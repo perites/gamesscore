@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Collection {{ collection["collection_name"] }}</title>
+</head>
+<body>
+
+<h2>Collection name : {{ collection["collection_name"] }}</h2>
+<h3>Note : {{ collection["collection_note"] }} </h3>
+<br>
+{% for game in collection["games"] %}
+    <h3>Game name : {{ game["info"][0] }}</h3>
+    <h3>Note : {{ game["note"] }}</h3>
+    <br>
+{% endfor %}
+
+<form action="/collections/{{ collection["collection_name"] }}/edit">
+    <button>Edit</button>
+</form>
+
+</body>
+</html>

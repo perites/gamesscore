@@ -87,10 +87,11 @@ class User(UserMixin):
         )
 
     def change_criteria(self, old_criteria_name, new_criteria_name, new_criteria_values, info):
-        if old_criteria_name != new_criteria_name or list(new_criteria_values.values()) != info["all_criterias"][
-            old_criteria_name]:
+        if (if_new := old_criteria_name != new_criteria_name) or list(new_criteria_values.values()) != \
+                info["all_criterias"][
+                    old_criteria_name]:
 
-            self.delete_criteria(old_criteria_name)
+            self.delete_criteria(old_criteria_name, if_new)
             self.add_criteria(new_criteria_name, list(new_criteria_values.values()))
 
             for game, game_info in info["games"].items():
@@ -112,7 +113,15 @@ class User(UserMixin):
 
                     # if is_new:
 
-    def delete_criteria(self, criteria_name):
+    def delete_criteria(self, criteria_name, if_new):
+        if not if_new:
+            uh.users_collection.update_one(
+                {"_id": self.user_id},
+                {"$pull": {
+                    "all_criterias.criterias": {"criteria_name": criteria_name}
+                }})
+            return
+
         uh.users_collection.update_one(
             {"_id": self.user_id},
             {"$pull": {
@@ -156,4 +165,41 @@ class User(UserMixin):
              })
 
     def get_games(self, games_id_list: list, request: dict = None):
-        return gh.games_collection.find({"_id": {"$in": games_id_list}}, request)
+        return list(gh.games_collection.find({"_id": {"$in": games_id_list}}, request))
+
+    def add_info_to_games_from_collections(self, collections: dict):
+        games_names = []
+        for collection in collections:
+            for game_obj in collection["games"]:
+                games_names.append(game_obj['game_id'])
+
+        # games_names = user.extract_games_names_from_collections(collection["collections"])
+        games_additional_info = self.get_games(games_names, {"_id": 1, "display_name": 1, "image": 1})
+        games_additional_info = {game["_id"]: (game["display_name"], game['image']) for game in games_additional_info}
+        for game in collections[0]['games']:
+            game['info'] = games_additional_info[game['game_id']]
+
+        return collections[0]
+
+    def add_collection(self, new_collection_name):
+        uh.users_collection.update_one(
+            {"_id": self.user_id},
+            {"$addToSet": {"collections": {"collection_name": new_collection_name,
+                                           "games": [],
+                                           "games_order": [],
+                                           "collection_note": ""}}}
+        )
+
+    def delete_collection(self, collection_name):
+        uh.users_collection.update_one(
+            {"_id": self.user_id},
+            {"$pull": {"collections": {"collection_name": collection_name}}}
+        )
+
+    def uptade_collection(self, new_collection: dict, collection_name):
+
+        self.delete_collection(collection_name)
+        uh.users_collection.update_one(
+            {"_id": self.user_id},
+            {"$addToSet": {"collections": new_collection}}
+        )

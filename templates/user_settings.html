@@ -168,13 +168,14 @@
         currentEditForm.style.display = 'block';
     }
 
-    {#document.querySelectorAll('.sortable-list').forEach(function (sortableList) {#}
-    {#    new Sortable(sortableList, {#}
-    {#        animation: 150,#}
-    {#        onEnd: function (evt) {#}
-    {#            console.log('New order:', evt.oldIndex, 'to', evt.newIndex);#}
-    {#        }#}
-    {#    });#}
+    document.querySelectorAll('.sortable-list').forEach(function (sortableList) {
+        new Sortable(sortableList, {
+            animation: 150,
+            onEnd: function (evt) {
+                console.log('New order:', evt.oldIndex, 'to', evt.newIndex);
+            }
+        })
+    })
 
 
     function validateForm(popupId, myForm, name_to_ignore) {
@@ -198,5 +199,6 @@
             document.getElementById(myForm).submit();
         }
     }
+  
 
 </script>

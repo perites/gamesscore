@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, url_for, jsonify, render_template
 from flask_login import logout_user, current_user, login_required
 
@@ -9,28 +10,23 @@ from login_logic import *
 from decorators import error_catcher, if_exist
 from user_class import gh
 
-# from exceptions import UserNotFound, UserAlreadyExist, CantBeEmpty, GameNotFound, CollectionNotFound
-
 import json
 
-# брати інфу з стіму ?
-# for game in user_id.get_field("games"):
-#     total_spend += game["Hours played"]
+# TODO брати інфу з стіму ?
+# TODO адмін сторінка
+# TODO рекомендації від користувачів
+# TODO коментарии к играм
 
-# персональна статистика ( скільки награно годин всього, улюблене, діаграма ( всього награнао, зараз граю), найчастіший тег з кожної категорії):
+
+# TODO for game in user_id.get_field("games"):
+# TODO     total_spend += game["Hours played"]
+# TODO персональна статистика ( скільки награно годин всього, улюблене, діаграма ( всього награнао, зараз граю), найчастіший тег з кожної категорії):
+# TODO у гри показувати скільки середнеє награли в  гру
+# TODO статистика на сторінку гри, скільки грають, скільки пограли тд
 
 
-# створювати свої списки
-
-# добавадять игры ( поиск) - страница колекции
-# переключатель edit mode - страница колекции и страница КоллекЦИЙ
-
-# у гри показувати скільки середнеє награли в  гру
-# статистика на сторінку гри, скільки грають, скільки пограли тд
-
-# коментарии к играм
-# видавець гри, сторінка видавця
-# франшизи
+# TODO видавець гри, сторінка видавця
+# TODO франшизи
 
 
 app = Flask(__name__)
@@ -360,6 +356,82 @@ def change_user_game_page_post(game_id):
                                             })
 
     return redirect(f"/profile/{current_user.user_id}/list#{game_id}")
+
+
+@app.route("/profile/<user_id>/collections", methods=["GET"])
+# @error_catcher
+@if_exist("user-collections")
+def collections_get(collections, user_id):
+    user = User(user_id)
+    return render_template("collections.html", collections=collections, user=user)
+
+
+@app.route("/profile/<user_id>/collections", methods=["POST"])
+# @error_catcher
+def collections_post(user_id):
+    user = User(user_id)
+    new_collection_name = request.form.to_dict()["new_collection_name"]
+    if not uh.users_collection.find_one(
+            {"_id": current_user.user_id},
+            {"_id": 1,
+             "collections": {"$elemMatch": {"collection_name": new_collection_name}}}).get("collections"):
+        user.add_collection(new_collection_name)
+    return redirect(f'/collections/{new_collection_name}/edit')
+
+
+@app.route("/profile/<user_id>/collections/<collection_name>", methods=["GET"])
+# @error_catcher
+@if_exist("user-collection")
+def collection_get(collection, user_id, collection_name):
+    user = User(user_id)
+
+    collection = user.add_info_to_games_from_collections(collection)
+
+    return render_template("user_collection.html", collection=collection)
+
+
+@app.route("/collections/<collection_name>/edit", methods=["GET"])
+# @error_catcher
+@login_required
+@if_exist("user-collection")
+def collection_edit_get(collection, user_id, collection_name):
+    collection = current_user.add_info_to_games_from_collections(collection)
+    return render_template("user_collection_edit.html", collection=collection)
+
+
+@app.route("/collections/<collection_name>/edit", methods=["POST"])
+def collection_edit_post(collection_name):
+    form = request.form.to_dict()
+    match form["action"]:
+        case "change_collection":
+            games_to_delete = []
+            new_notes = {}
+            for field in form:
+                if not field.startswith("__note"):
+                    if field.startswith("__checkbox"):
+                        games_to_delete.append(field[10:])
+                    continue
+                new_notes[field[6:]] = form[field]
+
+            # print(new_notes, games_to_delete, form['new_collection_name'])
+            new_collection = {"collection_name": form['new_collection_name'],
+                              "games": [],
+                              "games_order": list(new_notes.keys()),
+                              "collection_note": form["collection_note"]}
+            for game_id, note in new_notes.items():
+                if game_id in games_to_delete:
+                    continue
+                new_collection["games"].append({
+                    "game_id": game_id,
+                    "note": note
+                })
+
+            current_user.uptade_collection(new_collection, collection_name)
+            return redirect(f"/profile/{current_user.user_id}/collections/{form['new_collection_name']}")
+
+        case "delete_collection":
+            current_user.delete_collection(collection_name)
+            return redirect(f"/profile/{current_user.user_id}/collections")
 
 
 # Api

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Collections</title>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
+    <style>
+        .editing-mode {
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+
+<h1>{{ collections["_id"] }}`s collections</h1>
+{% for collection in collections["collections"] %}
+    <h2>
+        <a href="/profile/{{ user.user_id }}/collections/{{ collection["collection_name"] }}">
+            {{ collection["collection_name"] }}
+        </a>
+    </h2>
+{% endfor %}
+
+{% if current_user and current_user.user_id  == user.user_id %}
+
+    <form class="normal-mode" id="normalForm">
+        <button type="button" onclick="toggleEdit('{{ criteria }}')">Add new collection</button>
+    </form>
+
+    <form method="POST" class="editing-mode" id="editForm">
+        <input label="New collection name" name="new_collection_name"/>
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button type="submit"> Add collection</button>
+    </form>
+{% endif %}
+
+
+<script>
+
+    function toggleEdit(criteria) {
+        var normalForms = document.querySelectorAll('.normal-mode');
+        normalForms.forEach(function (form) {
+            form.style.display = 'block';
+        });
+
+        var editingForms = document.querySelectorAll('.editing-mode');
+        editingForms.forEach(function (form) {
+            form.style.display = 'none';
+        });
+
+        var currentNormalForm = document.getElementById('normalForm');
+        currentNormalForm.style.display = 'none';
+
+        var currentEditForm = document.getElementById('editForm');
+        console.log(currentEditForm)
+        currentEditForm.style.display = 'block';
+    }
+
+</script>
+
+</body>
+</html>
