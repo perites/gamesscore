@@ -1,53 +1,3 @@
-<!-- <!DOCTYPE html>
-
-<head>
-    <title>Score Game</title>
-    <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 50vh;
-        }
-        label,
-        input,
-        button {
-            display: block;
-            margin-bottom: 10px;
-        }
-        
-        form {
-            margin-bottom: 20px; /* Add space between the forms */
-        }
-    </style>
-</head>
-<body>
-    <div>
-        <form method="POST" >
-            {{ form.hidden_tag() }}
-            <label for="username">Username:</label>
-            {{ form.user_id() }}
-
-            <label for="password">Password:</label>
-            {{ form.password() }}
-            {{ form.submit() }}
-        </form>
-
-        <form action="/create-account">
-            <button>Create account</button>
-        </form>
-    </div>
-</body>
-</html>
- -->
-
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -73,7 +23,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        
+
         input,
         button {
             display: block;
@@ -99,7 +49,7 @@
             background-color: #3498db;
             color: #fff;
             cursor: pointer;
-            
+
 
         }
 
@@ -110,21 +60,21 @@
 </head>
 
 <body>
-    <div>
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <label for="username">Username:</label>
-            {{ form.user_id() }}
+<div>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <label for="username">Username:</label>
+        {{ form.user_id() }}
 
-            <label for="password">Password:</label>
-            {{ form.password() }}
-            <button>Login</button>
-        </form>
+        <label for="password">Password:</label>
+        {{ form.password() }}
+        <button>Login</button>
+    </form>
 
-        <form action="/create-account">
-            <button>Create account</button>
-        </form>
-    </div>
+    <form action="/create-account">
+        <button>Create account</button>
+    </form>
+</div>
 </body>
 
 </html>

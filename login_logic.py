@@ -1,13 +1,10 @@
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask import render_template, redirect, request
+from flask_login import LoginManager, login_user
+from flask import redirect, request
 
-# from work_with_db import UsersHelper, GamesHelper
-from user_class import User, uh, gh
+from user_class import User, uh
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'
-# uh = UsersHelper()
-# gh = GamesHelper()
-
 
 SESSION = []
 
@@ -20,12 +17,10 @@ def load_user(user_id):
 
 
 def authenticate(user_id, password, already_log=False):
-
     user = uh.users_collection.find_one({"_id": user_id}, {"password": 1})
 
     next_url = request.args.get('next')
     if user and user["password"] == password or already_log:
-
         user = User(user_id)
         login_user(user)
         SESSION.append(user.user_id)

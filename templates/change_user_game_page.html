@@ -37,7 +37,7 @@
 
         .form-select,
         .form-control {
-        	font-size: 15px;
+            font-size: 15px;
             width: 100%;
             padding: 10px;
             border: 1px solid #95a5a6;
@@ -68,36 +68,33 @@
             background-color: #2980b9;
         }
 
-        a,a:visited {
-    		color: white;
-    		text-decoration: none;
-		}
+        a, a:visited {
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 
 <body>
-    
-
-
 
 
 {% from 'bootstrap5/form.html' import render_form %}
-	 
-<dir>
-	<h2> <a href="/game/{{info['game']['game_id']}}" target=”_blank”>{{info['game']["additional_info"]['name']}} </a></h2>
-</dir>
-{{ render_form(form)}}
+
+<div>
+    <h2><a href="/game/{{ info['game']['game_id'] }}" target=”_blank”>{{ info['game']["additional_info"]['name'] }} </a>
+    </h2>
+</div>
+{{ render_form(form) }}
 
 
-<form method= "POST">
-	
-	<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <input type="hidden" name="delete_from_account" value="True" />
+<form method="POST">
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="delete_from_account" value="True"/>
     <button class="btn btn-primary btn-md">Delete from account</button>
 
 </form>
 
-</dir>
 
 </body>
 

@@ -15,6 +15,7 @@
     .editing-mode {
         display: none;
     }
+
     .popup {
         display: none;
         position: absolute;
@@ -30,7 +31,7 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="user" content="{{ current_user.user_id }}">
-<h1>Name : {{ current_user.user_id}} </h1>
+<h1>Name : {{ current_user.user_id }} </h1>
 
 <h1>Criterias:</h1>
 {% for criteria in criterias %}
@@ -39,88 +40,90 @@
         <button type="button" onclick="toggleEdit('{{ criteria }}')">Edit</button>
     </form>
 
-<div class="editing-mode" id="editForm_{{ criteria }}">
-    <form method="POST" id="editForm_one_{{ criteria }}">
-        <h3>Criteria name: <input name="new_criteria_name" value="{{criteria}}" /></h3>
-        <ul class="sortable-list" id="criteriaList_{{criteria}}">
-                {% for value in criterias[criteria]%}
-                    <li> <h4><input name="__name{{value}}"value="{{value}}"/ > 
-                             delete:
-                             <input type="checkbox" name="__checkbox{{value}}" value="{{value}}"/>
-                        </h4>
+    <div class="editing-mode" id="editForm_{{ criteria }}">
+        <form method="POST" id="editForm_one_{{ criteria }}">
+            <h3>Criteria name: <input name="new_criteria_name" value="{{ criteria }}"/></h3>
+            <ul class="sortable-list" id="criteriaList_{{ criteria }}">
+                {% for value in criterias[criteria] %}
+                    <li><h4><input name="__name{{ value }}" value="{{ value }}"/>
+                        delete:
+                        <input type="checkbox" name="__checkbox{{ value }}" value="{{ value }}"/>
+                    </h4>
                     </li>
                 {% endfor %}
-        </ul>
-            
-        
-        <input id="new_value_name_{{criteria}}" name="new_value_name"/>
-        <button type="button" onclick="addValue('{{criteria}}')">Add value</button>
-        
-        <br>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="hidden" name="action" value="change_criteria"/>
-        <input type="hidden" name="change_criteria_name" value="{{criteria}}"/>
-        <div id="popup_{{criteria}}" class="popup">Please fill out the input field.</div>
-        <button type="button" onclick="validateForm('popup_{{criteria}}','editForm_one_{{ criteria }}', 'new_value_name')">Commit</button>
-    </form>
+            </ul>
 
-    <form method="POST"> 
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="hidden" name="action" value="delete_criteria"/>
-        <input type="hidden" name="delete_criteria_name" value="{{criteria}}"/>
-        <button> Delete Criteria </button>
-    </form>
-</div>
+
+            <input id="new_value_name_{{ criteria }}" name="new_value_name"/>
+            <button type="button" onclick="addValue('{{ criteria }}')">Add value</button>
+
+            <br>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="action" value="change_criteria"/>
+            <input type="hidden" name="change_criteria_name" value="{{ criteria }}"/>
+            <div id="popup_{{ criteria }}" class="popup">Please fill out the input field.</div>
+            <button type="button"
+                    onclick="validateForm('popup_{{ criteria }}','editForm_one_{{ criteria }}', 'new_value_name')">
+                Commit
+            </button>
+        </form>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="action" value="delete_criteria"/>
+            <input type="hidden" name="delete_criteria_name" value="{{ criteria }}"/>
+            <button> Delete Criteria</button>
+        </form>
+    </div>
 
 {% endfor %}
 
-<form method= "POST" id= "new_criteriaForm">
-    <h4><input name="new_criteria_name"/></h4>    
+<form method="POST" id="new_criteriaForm">
+    <h4><input name="new_criteria_name"/></h4>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <input type="hidden" name="action" value="new_criteria" />
+    <input type="hidden" name="action" value="new_criteria"/>
     <div id="popup_new_criteria" class="popup">Please fill out the input field.</div>
-    <button type="button" onclick="validateForm('popup_new_criteria','new_criteriaForm', '')" >Add Criteria</button>
+    <button type="button" onclick="validateForm('popup_new_criteria','new_criteriaForm', '')">Add Criteria</button>
 </form>
 
 
 <form method="POST">
     <h3>Update criterias order : </h3>
     <ul class="sortable-list">
-    {%for criteria in criterias %}
-        <li ><input type="hidden" name="__name{{criteria}}" value="{{criteria}}"> {{criteria}}</li>
-    {%endfor%}
+        {% for criteria in criterias %}
+            <li><input type="hidden" name="__name{{ criteria }}" value="{{ criteria }}"> {{ criteria }}</li>
+        {% endfor %}
     </ul>
 
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <input type="hidden" name="action" value="update_criterias_order" />
+    <input type="hidden" name="action" value="update_criterias_order"/>
     <button>Update criterias order</button>
 </form>
 
-<form method= "POST">
+<form method="POST">
     <h3>Update basic criterias</h3>
     <ul class="sortable-list">
         {% for bc in user_show_info %}
-            <li><h4><input type="checkbox" name="__checkbox{{bc}}" value="{{bc}}" checked/>{{bc}}</h4></li>
-        {%endfor%}
+            <li><h4><input type="checkbox" name="__checkbox{{ bc }}" value="{{ bc }}" checked/>{{ bc }}</h4></li>
+        {% endfor %}
 
-        {%for bc in rest_criterias%}   
-            <li><h4> <input type="checkbox" name="__checkbox{{bc}}" value="{{bc}}"/>{{bc}}</h4></li>
-        {%endfor%}
+        {% for bc in rest_criterias %}
+            <li><h4><input type="checkbox" name="__checkbox{{ bc }}" value="{{ bc }}"/>{{ bc }}</h4></li>
+        {% endfor %}
     </ul>
 
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <input type="hidden" name="action" value="update_basic_criterias" />
+    <input type="hidden" name="action" value="update_basic_criterias"/>
     <button>Update basic criterias</button>
 </form>
 
 
-
 {% from 'bootstrap5/form.html' import render_form %}
-{{render_form(steam_form)}}
+{{ render_form(steam_form) }}
 
 <br>
-<form action="/profile/{{current_user.user_id}}/" >
-<button >Back to account</button>
+<form action="/profile/{{ current_user.user_id }}/">
+    <button>Back to account</button>
 </form>
 
 </body>
@@ -131,49 +134,47 @@
 <script>
 
     function addValue(criteria) {
-            var newListElement = document.createElement("li");
-            var inputValue = document.getElementById(`new_value_name_${criteria}`).value;
-            var newListContent = `
+        var newListElement = document.createElement("li");
+        var inputValue = document.getElementById(`new_value_name_${criteria}`).value;
+        var newListContent = `
                 <h4>
                     <input name="__name${inputValue}" value="${inputValue}" /> delete:
                     <input type="checkbox" name="__checkbox${inputValue}" value="${inputValue}" />
                 </h4>
             `;
-            
-            newListElement.innerHTML = newListContent;
-            document.getElementById(`criteriaList_${criteria}`).appendChild(newListElement);
-            document.getElementById(`new_value_name_${criteria}`).value = ""
-        }
+
+        newListElement.innerHTML = newListContent;
+        document.getElementById(`criteriaList_${criteria}`).appendChild(newListElement);
+        document.getElementById(`new_value_name_${criteria}`).value = ""
+    }
 
 
-
-        function toggleEdit(criteria) {
-            var normalForms = document.querySelectorAll('.normal-mode');
-            normalForms.forEach(function (form) {
-                form.style.display = 'block';
-            });
-
-            var editingForms = document.querySelectorAll('.editing-mode');
-            editingForms.forEach(function (form) {
-                form.style.display = 'none';
-            });
-
-            var currentNormalForm = document.getElementById('normalForm_' + criteria);
-            currentNormalForm.style.display = 'none';
-
-            var currentEditForm = document.getElementById('editForm_' + criteria);
-            console.log(currentEditForm)
-            currentEditForm.style.display = 'block';
-        }
-    
-    document.querySelectorAll('.sortable-list').forEach(function (sortableList) {
-        new Sortable(sortableList, {
-            animation: 150,
-            onEnd: function(evt) {
-                console.log('New order:', evt.oldIndex, 'to', evt.newIndex);
-            }
+    function toggleEdit(criteria) {
+        var normalForms = document.querySelectorAll('.normal-mode');
+        normalForms.forEach(function (form) {
+            form.style.display = 'block';
         });
-    });
+
+        var editingForms = document.querySelectorAll('.editing-mode');
+        editingForms.forEach(function (form) {
+            form.style.display = 'none';
+        });
+
+        var currentNormalForm = document.getElementById('normalForm_' + criteria);
+        currentNormalForm.style.display = 'none';
+
+        var currentEditForm = document.getElementById('editForm_' + criteria);
+        console.log(currentEditForm)
+        currentEditForm.style.display = 'block';
+    }
+
+    {#document.querySelectorAll('.sortable-list').forEach(function (sortableList) {#}
+    {#    new Sortable(sortableList, {#}
+    {#        animation: 150,#}
+    {#        onEnd: function (evt) {#}
+    {#            console.log('New order:', evt.oldIndex, 'to', evt.newIndex);#}
+    {#        }#}
+    {#    });#}
 
 
     function validateForm(popupId, myForm, name_to_ignore) {
@@ -183,19 +184,19 @@
         var inputFields = form.querySelectorAll('input');
         hasEmptyField = false;
         inputFields.forEach(function (input) {
-        if (input.value.toString().trim() === "" && input.name != name_to_ignore && input.name != '__checkbox') {
-            hasEmptyField = true;
-            input.focus()
-        }
-    });
+            if (input.value.toString().trim() === "" && input.name != name_to_ignore && input.name != '__checkbox') {
+                hasEmptyField = true;
+                input.focus()
+            }
+        });
         if (hasEmptyField) {
-        popup.style.display = "block";
-        setTimeout(function () {
-            popup.style.display = "none";
-        }, 2000);
-    } else {
-        document.getElementById(myForm).submit();
+            popup.style.display = "block";
+            setTimeout(function () {
+                popup.style.display = "none";
+            }, 2000);
+        } else {
+            document.getElementById(myForm).submit();
+        }
     }
-}
 
 </script>
