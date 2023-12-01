@@ -34,7 +34,7 @@ class GameInfoForm(FlaskForm):
     status = SelectField("Status", choices=confg.statuses)
     started_playing = DateField("Started playing")
     hours_played = IntegerField("Hours played")
-    tags = TextAreaField("Tags")
+    tags = TextAreaField("Tags", render_kw={"placeholder": "Use ; to separate tags"})
 
 
 class SteamAccountForm(FlaskForm):

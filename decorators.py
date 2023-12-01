@@ -37,10 +37,10 @@ def if_exist(value):
                     return func(game, *args, **kwds)
 
                 case "game-name-image":
-                    game = gh.games_collection.find_one({"_id": kwds["game_id"]}, {"display_name": 1, "image": 1})
-                    if not game:
+                    game_info = gh.games_collection.find_one({"_id": kwds["game_id"]}, {"display_name": 1, "image": 1})
+                    if not game_info:
                         raise GameNotFound
-                    return func(game, *args, **kwds)
+                    return func(game_info, *args, **kwds)
 
         return wrapper
     return decorator

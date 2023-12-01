@@ -20,7 +20,8 @@ def load_user(user_id):
 
 
 def authenticate(user_id, password, already_log=False):
-    user = uh.find_user_by_id(user_id)
+
+    user = uh.users_collection.find_one({"_id": user_id}, {"password": 1})
 
     next_url = request.args.get('next')
     if user and user["password"] == password or already_log:

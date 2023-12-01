@@ -86,7 +86,7 @@
 <dir>
 	<h2> <a href="/game/{{info['game']['game_id']}}" target=”_blank”>{{info['game']["additional_info"]['name']}} </a></h2>
 </dir>
-{{ render_form(form, action=url_for('change_user_game_page_post', game_id=info['game']['game_id'],all_criterias=info['all_criterias'].keys())) }}
+{{ render_form(form)}}
 
 
 <form method= "POST">

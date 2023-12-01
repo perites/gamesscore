@@ -175,10 +175,10 @@
                 	{% if info_name == "Tags" %}
                     	<td width="10%" >
                     		{% for tag in value["info"]["Tags"] %}
-                    		{% if user_status %}
-                    			<a href="/profile/{{info['_id']}}/list?status={{user_status}}&tag={{tag}}"> {{tag}}; </a>
-                    		{% else %}
-                    			<a href="/profile/{{info['_id']}}/list?tag={{tag}}"> {{tag}}; </a>
+                        		{% if user_status %}
+                        			<a href="/profile/{{info['_id']}}/list?status={{user_status}}&tag={{tag}}"> {{tag}}; </a>
+                        		{% else %}
+                        			<a href="/profile/{{info['_id']}}/list?tag={{tag}}"> {{tag}}; </a>
                     			{% endif %}
                     		{% endfor %}
                     		
@@ -193,7 +193,7 @@
     </tbody>
 </table>
 
-<meta name="user-cryterias" content="{{ json(info['all_criterias']) }}">
+<meta name="user-cryterias" content="{{ json(info['order']) }}">
 <script src="https://code.jquery.com/jquery-3.6.4.min.js" ></script>
 <script >
 
@@ -242,6 +242,7 @@
 
 
         const user_criterias_str = document.querySelector('meta[name="user-cryterias"]').content;
+        console.log(user_criterias_str)
 
         const user_criterias =  JSON.parse(user_criterias_str)
 
